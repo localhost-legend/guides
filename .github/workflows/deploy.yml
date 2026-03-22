@@ -1,31 +1,27 @@
-name: Deploy MkDocs to GitHub Pages
+name: Deploy
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  contents: write
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
         with:
-          python-version: "3.x"
-
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libcairo2-dev libffi-dev
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Prepare docs directory
-        run: ./setup-docs.sh
-
-      - name: Deploy to GitHub Pages
-        run: mkdocs gh-deploy --force
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install pip dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Deploy
+        run: |
+          # Your deployment script here
